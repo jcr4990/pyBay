@@ -4,7 +4,10 @@ from statistics import median
 import argparse
 from ebaysheet import ebaysheet
 
-# TODO: median.etc from python script based on price not shipped price
+# TODO:
+# median.etc from python script based on price not shipped price
+# add min/max price args
+# replace exc_skip flag with try/except and custom exception when exc word found via raise exceptionname
 
 listings = []
 titles = []
@@ -16,6 +19,7 @@ def get_listings(url):
     soup = BeautifulSoup(r.text, "html.parser")
 
     for li in soup.find_all("li", attrs={"class": "s-item"}):
+        exc_skip = 0
         if li.find("h3", attrs={"class": "s-item__title s-item__title--has-tags"}) is not None:
             title = li.find(
                 "h3", attrs={"class": "s-item__title s-item__title--has-tags"}).text
@@ -27,9 +31,13 @@ def get_listings(url):
                     continue
 
             if args.exclude is not None:
-                if args.exclude.lower() in title.lower():
-                    # print(f"Excluding: {title}")
-                    continue
+                for arg in args.exclude:
+                    if arg.lower() in title.lower():
+                        exc_skip = 1
+                        break
+
+            if exc_skip == 1:
+                continue
 
             titles.append(title)
 
@@ -71,8 +79,11 @@ def get_listings(url):
             img_url = img_elem.attrs["src"]
 
             # listings.append([title, "$" + str(price), shipping, "$" + str(shipped_price), f'=IMAGE("{img_url}")'])
-            listings.append(
-                [f'=IMAGE("{img_url}")', title, "$" + str(price), shipping, "$" + str(shipped_price)])
+            try:
+                listings.append(
+                    [f'=IMAGE("{img_url}")', title, "$" + str(price), shipping, "$" + str(shipped_price)])
+            except UnboundLocalError:
+                pass
 
     return listings, titles, prices
 
@@ -80,7 +91,7 @@ def get_listings(url):
 parser = argparse.ArgumentParser()
 parser.add_argument("-search", "--keywords")
 parser.add_argument("-req", "--required")
-parser.add_argument("-exclude", "--exclude")
+parser.add_argument("-exclude", "--exclude", nargs='+')
 # parser.add_argument("-pages", "--pages")
 args = parser.parse_args()
 
