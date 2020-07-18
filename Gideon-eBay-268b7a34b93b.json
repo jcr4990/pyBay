@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "gideon-ebay",
+  "private_key_id": "268b7a34b93b693610331b36e7039037423a846b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCq9qAcDeahnJe0\nt9AXjV/HJ5+a4CpP1aioJy+b9HKb674Fq8KgUpP88njM7B+zEbfk97dN1UyVzkKW\nXGHTDV0PonUqEUCyP/wgpW6MmKENFG2hZOd0jrFW9YK0hh+cWC11Dmv8AyGEEavD\n8in761eGPmFJzOpnt6KwF8g4/UWOzUeIQ9sf4ZYc9xeuMorR1MUIKRhiuAXk6Qtu\n7I7PhGXNtG6Rbh7/6QumtkPJJGp8wQ6BCyv/7lvPJowYA+NVQQkbFV2jj/sGMA8Z\n21trmCtj8WbMDISWM8zQn5KFl5HxG3ymxfkXp2mmYjEEabuaj6z3HkLC9CYoHSO3\n2HgDnEkPAgMBAAECggEABZY8/I22aA5I+t6NjfzQZh61CDJOelYTcTij7/xuCQsM\nJlKgRUL4Pmo3aQ2c/5S9pggzqkx6eI7JUvE+lSS4/NDPSV+k9e5CBq3BThY9dRhM\nzjBmS+3PJ8tVc8wfmP6yBZhCDnXqZiQkW9PnFqobLceOFa5SSVoRQUtAVMnEuHo5\nH6Oy0zI5fGacnbY+euMhPu8jXhvm5f9CMDE0HZoznUg8/HFV5uL92Jkkk4b6xFZE\n1PP5HhozWNFEccmrudYhEm3tRiPg6uWQylTCoU8cMD9oMsYQAwNhs/TsbLUZcLu5\neYZjfUuMkqp0Lc7d9VtU+ts09Z6uS+nY86LSR2LjOQKBgQDncEQZ0cOt9MkdJq/W\neYJSHcWEebkiaNtRDzu52F+f2pt6/zyKQZhuYI9o+FN/so4Gehnp8lI4sD/Ol3Gz\nC214LRt/mgo4pnUEoxKL0qVjaidL5eOOguclc5ni3oSBfbVBQ1WrCN0yP2l22vKh\nKv+3xKPV6PDp2iZytSRJ03LsUwKBgQC9G14C3JglwuIxUQUr+185GAE0sULSheBc\n7LuXyaSwBGhURYjWvSwRtVvTruHGpyv/oh6h3qzRcAfcBDP5meQcy9RekSye3BEk\nYAwSpbCUfnCZ5rn7AczyWY+AhWIZCY2SxvJGhnAasEgyBbgoPCsSTQg2pOc8J2CI\nv/OppBa41QKBgE0qPlqJeP/YHPIOQxR0gQIWERQhbZvOcElvlc9aGE/5GFwDG9FR\nG5y5rzcljNmH1BjOvzMka0uhYDTmg69ZwQ8PoxqBZqUKwvtfz8A05JXn/+ArbxrG\nBIGVMJrW7EEsg7GV3Mtg8jddszFAwSMBbi98bc/VkfW2mZknUkkXKjsnAoGAaTbD\nzJXNdR0D2mp4lSrrpQltClMhmZ3w4eK40M/Y+DHLli+F3ewsi8G60ID5jxxNx5H8\ntxT8VB6f0NLp1BLCLx9dDix5hf1s8C8cKHfVUhkzLv2HNlefHqujwt7zYHjHMwXL\noF+GGeNAl8xE1OX9FNaVHkoLeZVzCUK7IARyu+0CgYABd/wxBVovWbBeOm/Vtg0C\n5MBXrF4ru7umH9Sv//V7PTN06rqhD9G2lVrqkoTKSVhjVVEAr+kEGv9jn8uw/GvT\nQ3enswjzKSIcshGoHa8G+PGhKq7BI/ftDu8yLBrjZwc8poexEXFyEDAvq5l29IQx\n60UpCBvJMc2SGBLW0OJNCQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "gideon-ebay@gideon-ebay.iam.gserviceaccount.com",
+  "client_id": "109163807218459683063",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gideon-ebay%40gideon-ebay.iam.gserviceaccount.com"
+}
