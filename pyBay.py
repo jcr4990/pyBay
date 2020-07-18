@@ -5,13 +5,9 @@ import argparse
 from ebaysheet import ebaysheet
 
 # TODO:
-# median.etc from python script based on price not shipped price
+# median from python script based on price not shipped price
 # add min/max price args
 # replace exc_skip flag with try/except and custom exception when exc word found via raise exceptionname
-
-listings = []
-titles = []
-prices = []
 
 
 def get_listings(url):
@@ -88,6 +84,9 @@ def get_listings(url):
     return listings, titles, prices
 
 
+listings = []
+titles = []
+prices = []
 parser = argparse.ArgumentParser()
 parser.add_argument("-search", "--keywords")
 parser.add_argument("-req", "--required")
@@ -117,5 +116,4 @@ print(f"Min:{min(prices)}\nMax:{max(prices)}\nMedian:{median(prices)}")
 sh = ebaysheet()
 sh.values_clear("Sheet1!A2:M")
 
-sh.values_update('Sheet1!A2', params={'valueInputOption': 'USER_ENTERED'}, body={
-                 'values': listings})  # ValueInputOption = RAW
+sh.values_update('Sheet1!A2', params={'valueInputOption': 'USER_ENTERED'}, body={'values': listings})  # ValueInputOption = RAW
