@@ -1,17 +1,15 @@
-import requests
-from bs4 import BeautifulSoup
 from statistics import median
 import argparse
+from pprint import pprint
+import requests
+from bs4 import BeautifulSoup
 from ebaysheet import ebaysheet
-
-# TODO:
-# median from python script based on price not shipped price
-# add min/max price args
 
 
 class ExcludedWordInTitle(Exception):
     """Raised when word defined with -excluded flag appears in title to continue loop"""
     pass
+
 
 def get_listings(url):
     r = requests.get(url, headers=headers)
@@ -34,7 +32,6 @@ def get_listings(url):
                     for arg in args.exclude:
                         if arg.lower() in title.lower():
                             raise ExcludedWordInTitle
-                            break
                 except ExcludedWordInTitle:
                     continue
 
@@ -54,7 +51,8 @@ def get_listings(url):
                 price_midpoint = (float(price_range[0]) + float(price_range[1])) / 2
                 price = price_midpoint
 
-            prices.append(float(price))
+            price = float(price)  
+            prices.append(price)
 
 
         # Grab Shipping
@@ -73,6 +71,15 @@ def get_listings(url):
             elif shipping == "Free":
                 shipped_price = price
 
+            if args.minprice is not None:
+                if shipped_price < args.minprice:
+                    continue
+
+            if args.maxprice is not None:
+                if shipped_price > args.maxprice:
+                    continue
+
+            shipped_prices.append(shipped_price)
 
         # Grab Thumbnail
         if li.find("img", attrs={"class": "s-item__image-img"}) is not None:
@@ -90,6 +97,8 @@ def get_listings(url):
 listings = []
 titles = []
 prices = []
+shipped_prices = []
+headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36'}
 parser = argparse.ArgumentParser()
 parser.add_argument("-search", "--keywords")
 parser.add_argument("-req", "--required")
@@ -100,12 +109,11 @@ parser.add_argument("-max", "--maxprice", type=float)
 args = parser.parse_args()
 
 keywords = args.keywords
-if keywords == None:
+if keywords is None:
     keywords = input("Search:")
 keywords = keywords.replace(" ", "%20")
-headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36'}
 
-if args.pages == None:
+if args.pages is None:
     num_pages = 1
 else:
     num_pages = args.pages
@@ -114,12 +122,9 @@ for page in range(num_pages):
     url = f"https://www.ebay.com/sch/i.html?_from=R40&_nkw={keywords}&_sacat=0&rt=nc&LH_Sold=1&LH_Complete=1&_ipg=200&_pgn={page}"
     get_listings(url)
 
-# Debug/Test Prints
-# print(f"Number of Titles:{len(titles)}")
-# print(f"Number of Prices:{len(prices)}")
+pprint(listings)
 print(f"Number of Listings:{len(listings)}")
-print(f"Min:{min(prices)}\nMax:{max(prices)}\nMedian:{median(prices)}")
-
+print(f"Min:{min(shipped_prices)}\nMax:{max(shipped_prices)}\nMedian:{median(shipped_prices)}")
 
 sh = ebaysheet()
 sh.values_clear("Sheet1!A2:M")
