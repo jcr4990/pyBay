@@ -5,10 +5,35 @@ import requests
 from bs4 import BeautifulSoup
 from ebaysheet import ebaysheet
 
+#TODO: 
+# Combine title / price funcs into single func? def price_valid return True if price is above min below max. If price_valid returns False: continue
 
-class ExcludedWordInTitle(Exception):
-    """Raised when word defined with -excluded flag appears in title to continue loop"""
-    pass
+
+def excluded_in_title(title):
+    if args.exclude is not None:
+        for arg in args.exclude:
+            if arg.lower() in title.lower():
+                return True
+    return False
+
+def required_in_title(title):
+    if args.required is not None:
+        for arg in args.required:
+            if arg.lower() not in title.lower():
+                return False
+    return True
+
+def price_above_min(price):
+    if args.minprice is not None:
+        if price > args.minprice:
+            return True
+        return False
+
+def price_below_max(price):
+    if args.maxprice is not None:
+        if price < args.maxprice:
+            return True
+        return False
 
 
 def get_listings(url):
@@ -16,80 +41,81 @@ def get_listings(url):
     soup = BeautifulSoup(r.text, "html.parser")
 
     # Loop through all li's with "s-item" class AKA each listing box
-    for li in soup.find_all("li", attrs={"class": "s-item"}):
+    for li in soup.find_all("li", class_="s-item"):
 
         # Grab Title
-        if li.find("h3", attrs={"class": "s-item__title s-item__title--has-tags"}) is not None:
-            title = li.find("h3", attrs={"class": "s-item__title s-item__title--has-tags"}).text
-            title = title.replace("New Listing", "")
+        title_element = li.find("h3", class_="s-item__title s-item__title--has-tags")
+        if title_element is None:
+            continue
 
-            if args.required is not None:
-                if args.required.lower() not in title.lower():
-                    continue
+        title = title_element.text
+        title = title.replace("New Listing", "")
 
-            if args.exclude is not None:
-                try:
-                    for arg in args.exclude:
-                        if arg.lower() in title.lower():
-                            raise ExcludedWordInTitle
-                except ExcludedWordInTitle:
-                    continue
+        if required_in_title(title) is False:
+            continue
 
-            titles.append(title)
+        if excluded_in_title(title) is True:
+            continue
+
+        titles.append(title)
 
 
         # Grab Price
-        if li.find("span", attrs={"class": "s-item__price"}) is not None:
-            price = li.find("span", attrs={"class": "s-item__price"}).text
-            price = price.replace("$", "").replace(",", "")
+        price_element = li.find("span", class_="s-item__price")
+        if price_element is None:
+            continue
+        price = price_element.text
+        price = price.replace("$", "").replace(",", "")
 
-            if "Tap item to see current price" in price:
-                continue
+        if "Tap item to see current price" in price:
+            continue
 
-            if " to " in price:
-                price_range = price.split(" to ")
-                price_midpoint = (float(price_range[0]) + float(price_range[1])) / 2
-                price = price_midpoint
+        if " to " in price:
+            price_range = price.split(" to ")
+            price_midpoint = (float(price_range[0]) + float(price_range[1])) / 2
+            price = price_midpoint
 
-            price = float(price)  
-            prices.append(price)
+        price = float(price)  
+        prices.append(price)
 
 
         # Grab Shipping
-        if li.find("span", attrs={"class": "s-item__shipping s-item__logisticsCost"}) is not None:
-            shipping = li.find("span", attrs={"class": "s-item__shipping s-item__logisticsCost"}).text
-            shipping = shipping.replace("shipping", "").replace("+", "").strip()
+        shipping_element = li.find("span", class_="s-item__shipping s-item__logisticsCost")
+        if shipping_element is None:
+            continue
 
-            if shipping == "Shipping not specified" or shipping == "Freight":
-                continue
+        shipping = shipping_element.text
+        shipping = shipping.replace("shipping", "").replace("+", "").strip()
 
-            if shipping != "Free":
-                shipping = shipping.replace("$", "")
-                shipped_price = price + float(shipping)
-                shipped_price = round(shipped_price, 2)
-                shipping = "$" + shipping
-            elif shipping == "Free":
-                shipped_price = price
+        if shipping == "Shipping not specified" or shipping == "Freight":
+            continue
 
-            if args.minprice is not None:
-                if shipped_price < args.minprice:
-                    continue
+        if shipping != "Free":
+            shipping = shipping.replace("$", "")
+            shipped_price = price + float(shipping)
+            shipped_price = round(shipped_price, 2)
+            shipping = "$" + shipping
+        elif shipping == "Free":
+            shipped_price = price
 
-            if args.maxprice is not None:
-                if shipped_price > args.maxprice:
-                    continue
 
-            shipped_prices.append(shipped_price)
+        if price_above_min(shipped_price) is False:
+            continue
+
+        if price_below_max(shipped_price) is False:
+            continue
+
+        shipped_prices.append(shipped_price)
 
         # Grab Thumbnail
-        if li.find("img", attrs={"class": "s-item__image-img"}) is not None:
-            img_elem = li.find("img", attrs={"class": "s-item__image-img"})
-            img_url = img_elem.attrs["src"]
+        thumbnail_element = li.find("img", class_="s-item__image-img")
+        if thumbnail_element is None:
+            continue
 
-            try:
-                listings.append([f'=IMAGE("{img_url}")', title, "$" + str(price), shipping, "$" + str(shipped_price)])
-            except UnboundLocalError:
-                pass
+        img_url = thumbnail_element.attrs["src"]
+
+
+        listings.append([f'=IMAGE("{img_url}")', title, "$" + str(price), shipping, "$" + str(shipped_price)])
 
     return listings
 
@@ -101,7 +127,7 @@ shipped_prices = []
 headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36'}
 parser = argparse.ArgumentParser()
 parser.add_argument("-search", "--keywords")
-parser.add_argument("-req", "--required")
+parser.add_argument("-req", "--required", nargs="+")
 parser.add_argument("-exclude", "--exclude", nargs='+')
 parser.add_argument("-pages", "--pages", type=int)
 parser.add_argument("-min", "--minprice", type=float)
