@@ -5,39 +5,37 @@ import requests
 from bs4 import BeautifulSoup
 from ebaysheet import ebaysheet
 
-#TODO: 
 # Combine title / price funcs into single func? def price_valid return True if price is above min below max. If price_valid returns False: continue
 
 
-def excluded_in_title(title):
+def accept_title(title):
     if args.exclude is not None:
         for arg in args.exclude:
             if arg.lower() in title.lower():
-                return True
-    return False
+                return False
 
-def required_in_title(title):
     if args.required is not None:
         for arg in args.required:
             if arg.lower() not in title.lower():
                 return False
+
     return True
 
-def price_above_min(price):
+
+def price_in_range(price):
     if args.minprice is not None:
-        if price > args.minprice:
-            return True
-        return False
+        if price < args.minprice:
+            return False
 
-def price_below_max(price):
     if args.maxprice is not None:
-        if price < args.maxprice:
-            return True
-        return False
+        if price > args.maxprice:
+            return False
+
+    return True
 
 
-def get_listings(url):
-    r = requests.get(url, headers=headers)
+def get_listings(url_to_scrape):
+    r = requests.get(url_to_scrape, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
 
     # Loop through all li's with "s-item" class AKA each listing box
@@ -51,14 +49,10 @@ def get_listings(url):
         title = title_element.text
         title = title.replace("New Listing", "")
 
-        if required_in_title(title) is False:
-            continue
-
-        if excluded_in_title(title) is True:
+        if accept_title(title) is False:
             continue
 
         titles.append(title)
-
 
         # Grab Price
         price_element = li.find("span", class_="s-item__price")
@@ -75,9 +69,8 @@ def get_listings(url):
             price_midpoint = (float(price_range[0]) + float(price_range[1])) / 2
             price = price_midpoint
 
-        price = float(price)  
+        price = float(price)
         prices.append(price)
-
 
         # Grab Shipping
         shipping_element = li.find("span", class_="s-item__shipping s-item__logisticsCost")
@@ -98,11 +91,7 @@ def get_listings(url):
         elif shipping == "Free":
             shipped_price = price
 
-
-        if price_above_min(shipped_price) is False:
-            continue
-
-        if price_below_max(shipped_price) is False:
+        if price_in_range(shipped_price) is False:
             continue
 
         shipped_prices.append(shipped_price)
@@ -113,7 +102,6 @@ def get_listings(url):
             continue
 
         img_url = thumbnail_element.attrs["src"]
-
 
         listings.append([f'=IMAGE("{img_url}")', title, "$" + str(price), shipping, "$" + str(shipped_price)])
 
@@ -154,4 +142,4 @@ print(f"Min:{min(shipped_prices)}\nMax:{max(shipped_prices)}\nMedian:{median(shi
 
 sh = ebaysheet()
 sh.values_clear("Sheet1!A2:M")
-sh.values_update('Sheet1!A2', params={'valueInputOption': 'USER_ENTERED'}, body={'values': listings})  # ValueInputOption = RAW
+sh.values_update('Sheet1!A2', params={'valueInputOption': 'USER_ENTERED'}, body={'values': listings})
