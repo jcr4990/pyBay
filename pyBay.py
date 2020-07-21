@@ -5,8 +5,6 @@ import requests
 from bs4 import BeautifulSoup
 from ebaysheet import ebaysheet
 
-# Combine title / price funcs into single func? def price_valid return True if price is above min below max. If price_valid returns False: continue
-
 
 def accept_title(title):
     if args.exclude is not None:
