@@ -52,6 +52,10 @@ def get_listings(url_to_scrape):
 
         titles.append(title)
 
+        # Grab Link
+        link_element = title_element.find_parent("a")
+        link = link_element["href"]
+
         # Grab Price
         price_element = li.find("span", class_="s-item__price")
         if price_element is None:
@@ -101,7 +105,7 @@ def get_listings(url_to_scrape):
 
         img_url = thumbnail_element.attrs["src"]
 
-        listings.append([f'=IMAGE("{img_url}")', title, "$" + str(price), shipping, "$" + str(shipped_price)])
+        listings.append([f'=IMAGE("{img_url}")', f'=HYPERLINK("{link}", "{title}")', "$" + str(price), shipping, "$" + str(shipped_price)])
 
     return listings
 
