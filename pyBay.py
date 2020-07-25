@@ -116,10 +116,10 @@ prices = []
 shipped_prices = []
 headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36'}
 parser = argparse.ArgumentParser()
-parser.add_argument("-search", "--keywords")
+parser.add_argument("-search", "--keywords", nargs="+")
 parser.add_argument("-req", "--required", nargs="+")
 parser.add_argument("-exclude", "--exclude", nargs='+')
-parser.add_argument("-pages", "--pages", type=int)
+parser.add_argument("-pages", "--pages",  default=1, type=int)
 parser.add_argument("-min", "--minprice", type=float)
 parser.add_argument("-max", "--maxprice", type=float)
 args = parser.parse_args()
@@ -127,15 +127,11 @@ args = parser.parse_args()
 keywords = args.keywords
 if keywords is None:
     keywords = input("Search:")
-keywords = keywords.replace(" ", "%20")
 
-if args.pages is None:
-    num_pages = 1
-else:
-    num_pages = args.pages
-
-for page in range(num_pages):
-    url = f"https://www.ebay.com/sch/i.html?_from=R40&_nkw={keywords}&_sacat=0&rt=nc&LH_Sold=1&LH_Complete=1&_ipg=200&_pgn={page}"
+for page in range(1, (args.pages + 1)):
+    s = "+"
+    url = f"https://www.ebay.com/sch/i.html?_from=R40&_nkw={s.join(keywords)}&_sacat=0&rt=nc&LH_Sold=1&LH_Complete=1&_ipg=200&_pgn={page}"
+    # print(url)
     get_listings(url)
 
 pprint(listings)
